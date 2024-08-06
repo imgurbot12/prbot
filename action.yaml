@@ -1,0 +1,27 @@
+name: Gitea PRBot
+description: Auto Upload a PR Review Based on Collected Error Annotations.
+
+inputs:
+  username:
+    description: Gitea Bot Username
+    required: true
+  api_token:
+    description: Gitea Bot Api Token
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - env:
+        GITEA_BOT_USER:  ${{ inputs.username }}
+        GITEA_BOT_TOKEN: ${{ inputs.api_token }}
+      id: prbot_setup
+      run: |
+        set -e
+        mkdir -p $HOME/.local/bin/
+        curl -sL https://github.com/imgurbot12/prbot/releases/download/latest/prbot-linux-amd64 -o "$HOME/.local/bin/prbot"
+        chmod +x $HOME/.local/bin/prbot
+        echo "GITEA_BOT_USER=$GITEA_BOT_USER" >> $GITHUB_ENV
+        echo "GITEA_BOT_TOKEN=$GITEA_BOT_TOKEN" >> $GITHUB_ENV
+        which -s prbot || echo PATH="${PATH}:${HOME}/.local/bin" >> $GITHUB_ENV
+      shell: bash
