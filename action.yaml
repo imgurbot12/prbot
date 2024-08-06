@@ -19,7 +19,7 @@ runs:
       run: |
         set -e
         mkdir -p $HOME/.local/bin/
-        curl -sL https://github.com/imgurbot12/prbot/releases/download/latest/prbot-linux-amd64 -o "$HOME/.local/bin/prbot"
+        curl -sL https://github.com/imgurbot12/prbot/releases/latest/download/prbot-linux-amd64 -o "$HOME/.local/bin/prbot"
         chmod +x $HOME/.local/bin/prbot
         echo "GITEA_BOT_USER=$GITEA_BOT_USER" >> $GITHUB_ENV
         echo "GITEA_BOT_TOKEN=$GITEA_BOT_TOKEN" >> $GITHUB_ENV
