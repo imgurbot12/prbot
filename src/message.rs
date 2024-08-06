@@ -77,7 +77,7 @@ impl LogMessage {
             line: get_int(&flags, "line")?,
             end_line: get_int(&flags, "endLine")?,
             col: get_int(&flags, "col")?,
-            end_col: get_int(&flags, "endCol")?,
+            end_col: get_int(&flags, "endColumn")?,
         })
     }
     pub fn comment(&self) -> Comment {

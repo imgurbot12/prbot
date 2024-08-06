@@ -64,12 +64,16 @@ impl PrepareArgs {
         // read new messages from input
         let f = std::fs::File::open(&self.input).context("failed to read input")?;
         let r = BufReader::new(f);
-        for line in r
-            .lines()
-            .filter_map(|l| l.ok())
-            .filter(|l| l.starts_with("::"))
-        {
-            let message = LogMessage::parse(&line)?;
+        for line in r.lines().filter_map(|l| l.ok()).filter(|l| {
+            l.starts_with("::debug")
+                || l.starts_with("::notice")
+                || l.starts_with("::warning")
+                || l.starts_with("::error")
+        }) {
+            let Ok(message) = LogMessage::parse(&line) else {
+                log::error!("invalid log message: {line:?}");
+                continue;
+            };
             messages.push(message);
         }
         // write to cache if not immeditely commiting
