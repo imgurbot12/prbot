@@ -13,8 +13,13 @@ use crate::message::*;
 fn commit(pr_url: &str, user: &str, token: &str, messages: Vec<LogMessage>) -> Result<()> {
     log::info!("cleaing old reviews");
     api::clean_old_reviews(pr_url, user, token).context("failed to clean old reviews")?;
-    log::info!("retrieving latest commit-id");
-    let commit_id = api::latest_commit(pr_url, token).context("failed to find commit-id")?;
+    let commit_id = match std::env::var("GITHUB_SHA") {
+        Ok(cid) => cid,
+        Err(_) => {
+            log::info!("retrieving latest commit-id");
+            api::latest_commit(pr_url, token).context("failed to find commit-id")?
+        }
+    };
     log::info!("submitting new review");
     api::new_review(
         pr_url,
@@ -108,7 +113,7 @@ pub enum Command {
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// Gitea Instance URL
-    #[clap(short, long, env = "GITEA_INSTANCE")]
+    #[clap(short, long, env = "GITHUB_SERVER_URL")]
     pub gitea: String,
     /// Bot username used to post PR review
     #[clap(short, long, env = "GITEA_BOT_USER")]
@@ -116,15 +121,12 @@ pub struct Cli {
     /// Bot access-token used to authenticate to API
     #[clap(short, long, env = "GITEA_BOT_TOKEN")]
     pub token: String,
-    /// Repository owner associated with PR
-    #[clap(short, long, env = "GITEA_OWNER")]
-    pub owner: String,
     /// Repository name
-    #[clap(short, long, env = "GITEA_REPO")]
+    #[clap(short, long, env = "GITHUB_REPOSITORY")]
     pub repo: String,
     /// Pull Request number
-    #[clap(short, long, env = "GITEA_PR")]
-    pub number: usize,
+    #[clap(short, long, env = "GITEA_PULL_REQUEST_NUMBER")]
+    pub number: Option<usize>,
     /// Message cache filepath
     #[clap(short, long, default_value = "messages.cache")]
     pub cache: String,
@@ -135,10 +137,21 @@ pub struct Cli {
 
 impl Cli {
     /// Generate API URL to Manage Pull-Request
-    pub fn pr_url(&self) -> String {
-        format!(
-            "{}/api/v1/repos/{}/{}/pulls/{}",
-            self.gitea, self.owner, self.repo, self.number
-        )
+    pub fn pr_url(&self) -> Result<String> {
+        let (owner, repo) = self.repo.split_once('/').context("invalid repo string")?;
+        let number = match self.number {
+            Some(number) => number,
+            None => {
+                let gref = std::env::var("GITHUB_REF_NAME").context("cannot find pr number")?;
+                let (number, _) = gref.split_once('/').context("invalid `GITHUB_REF_NAME`")?;
+                number
+                    .parse()
+                    .context("invalid pr number in `GITHUB_REF_NAME")?
+            }
+        };
+        Ok(format!(
+            "{}/api/v1/repos/{owner}/{repo}/pulls/{number}",
+            self.gitea
+        ))
     }
 }

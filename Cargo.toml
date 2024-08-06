@@ -1,5 +1,5 @@
 [package]
-name = "gitea_prbot"
+name = "prbot"
 version = "0.1.0"
 edition = "2021"
 
