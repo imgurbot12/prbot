@@ -63,7 +63,7 @@ impl LogMessage {
     pub fn parse(line: &str) -> Result<Self> {
         let (_, line) = line.split_once("::").context("missing intitial `::`")?;
         let (flags_raw, message) = line.split_once("::").context("missing secondary `::`")?;
-        let (level, flags_raw) = flags_raw.split_once(' ').unwrap_or(("", flags_raw));
+        let (level, flags_raw) = flags_raw.split_once(' ').unwrap_or((flags_raw, ""));
         let flags: HashMap<&str, &str> = flags_raw
             .split(',')
             .into_iter()
