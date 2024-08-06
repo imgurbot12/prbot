@@ -51,4 +51,4 @@ jobs:
 
 #### Example
 
-![php_example](./rsrc/pr-example.png)
+![php_example](./images/pr-example.png)
