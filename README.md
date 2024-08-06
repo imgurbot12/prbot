@@ -14,8 +14,9 @@ in Automated Gitea Actions.
 
 Since Gitea currently
 [does not support "Error Annotations"](https://docs.gitea.com/usage/actions/comparison#create-an-error-annotation)
-this bot fills in the gaps by anayzing the stdout of other action stages
-and then can commit the messages to a single review after the action completes.
+this fills in the gaps by anayzing the stdout of other action stages
+and then can commit the messages to a single review using a designated
+service account after the action completes.
 
 #### Usage
 
