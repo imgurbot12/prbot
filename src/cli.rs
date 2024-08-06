@@ -102,7 +102,8 @@ impl CommitArgs {
         let messages = read_cache(&path).context("failed to read message cache")?;
         if messages.is_empty() {
             log::warn!("collect messages are empty. skipping review");
-            return Ok(());
+            return api::clean_old_reviews(pr_url, user, token)
+                .context("failed to clean old reviews");
         }
         commit(pr_url, user, token, messages).context("review commit failed")?;
         if path.exists() {
