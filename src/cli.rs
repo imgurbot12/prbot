@@ -161,7 +161,12 @@ impl Cli {
             Some(number) => number,
             None => {
                 let gref = std::env::var("GITHUB_REF_NAME").context("cannot find pr number")?;
-                let (number, _) = gref.split_once('/').context("invalid `GITHUB_REF_NAME`")?;
+                let (number, _) = match gref.contains('/') {
+                    true => gref
+                        .split_once('/')
+                        .context(format!("invalid `GITHUB_REF_NAME`: {gref:?}"))?,
+                    false => (gref.as_str(), ""),
+                };
                 number
                     .parse()
                     .context(format!("invalid pr number in `GITHUB_REF_NAME`: {gref:?}"))?
