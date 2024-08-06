@@ -47,3 +47,7 @@ jobs:
 
 + `username`  - username of service account used to post PR
 + `api_token` - gitea api-token for service account to authenticate with
+
+#### Example
+
+![php_example](./rsrc/pr-example.png)
