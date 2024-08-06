@@ -45,6 +45,15 @@ pub struct PrepareArgs {
 }
 
 impl PrepareArgs {
+    pub fn new() -> Self {
+        Self {
+            input: "/dev/stdin".to_owned(),
+            commit: false,
+        }
+    }
+}
+
+impl PrepareArgs {
     pub fn prepare(&self, pr_url: &str, user: &str, token: &str, cache: &str) -> Result<()> {
         // read existing message cache (if any)
         let path = PathBuf::from(&cache);
@@ -96,6 +105,9 @@ impl CommitArgs {
             return Ok(());
         }
         commit(pr_url, user, token, messages).context("review commit failed")?;
+        if path.exists() {
+            std::fs::remove_file(&path).context("failed to cleanup message cache")?;
+        }
         Ok(())
     }
 }
@@ -132,12 +144,18 @@ pub struct Cli {
     pub cache: String,
     /// Available commands
     #[clap(subcommand)]
-    pub command: Command,
+    pub command: Option<Command>,
 }
 
 impl Cli {
     /// Generate API URL to Manage Pull-Request
     pub fn pr_url(&self) -> Result<String> {
+        log::debug!(
+            "gitea={:?} repo={:?}, pr={:?}",
+            self.gitea,
+            self.repo,
+            self.number
+        );
         let (owner, repo) = self.repo.split_once('/').context("invalid repo string")?;
         let number = match self.number {
             Some(number) => number,
@@ -146,7 +164,7 @@ impl Cli {
                 let (number, _) = gref.split_once('/').context("invalid `GITHUB_REF_NAME`")?;
                 number
                     .parse()
-                    .context("invalid pr number in `GITHUB_REF_NAME")?
+                    .context(format!("invalid pr number in `GITHUB_REF_NAME`: {gref:?}"))?
             }
         };
         Ok(format!(
