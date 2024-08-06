@@ -38,7 +38,7 @@ where
 }
 
 /// Clean Old PR Reviews Attached to User
-pub fn clean_old_reviews(pr_url: String, user: String, token: String) -> Result<()> {
+pub fn clean_old_reviews(pr_url: &str, user: &str, token: &str) -> Result<()> {
     // retrieve list of PR reviews
     log::debug!("GET {pr_url}/reviews");
     let req = Request::get(format!("{pr_url}/reviews"))
@@ -80,7 +80,7 @@ pub fn clean_old_reviews(pr_url: String, user: String, token: String) -> Result<
 }
 
 /// Retrieve Latest Commit for PR
-pub fn latest_commit(pr_url: String, token: String) -> Result<String> {
+pub fn latest_commit(pr_url: &str, token: &str) -> Result<String> {
     log::debug!("GET {pr_url}/commits");
     let req = Request::get(format!("{pr_url}/commits"))
         .header("Authorization", format!("token {token}"))
@@ -100,10 +100,11 @@ pub fn latest_commit(pr_url: String, token: String) -> Result<String> {
 }
 
 /// Submit new PR Review
-pub fn new_review(pr_url: String, token: String, review: ReviewRequest) -> Result<()> {
+pub fn new_review(pr_url: &str, token: &str, review: ReviewRequest) -> Result<()> {
     log::debug!("POST {pr_url}/reviews");
     let req = Request::post(format!("{pr_url}/reviews"))
         .header("Authorization", format!("token {token}"))
+        .header("Content-Type", "application/json")
         .timeout(Duration::from_secs(5))
         .body(serde_json::to_string(&review).context("failed to serialize request")?)
         .context("failed to build review submission request")?;

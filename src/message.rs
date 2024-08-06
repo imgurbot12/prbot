@@ -15,6 +15,17 @@ pub enum LogLevel {
     Error,
 }
 
+impl LogLevel {
+    pub fn markdown_level(&self) -> &str {
+        match self {
+            Self::Debug => "NOTE",
+            Self::Notice => "IMPORTANT",
+            Self::Warning => "WARNING",
+            Self::Error => "CAUTION",
+        }
+    }
+}
+
 impl FromStr for LogLevel {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -62,7 +73,7 @@ impl LogMessage {
             level: LogLevel::from_str(level)?,
             message: message.to_owned(),
             title: flags.get("title").map(|s| s.to_string()),
-            file: flags.get("line").map(|s| s.to_string()),
+            file: flags.get("file").map(|s| s.to_string()),
             line: get_int(&flags, "line")?,
             end_line: get_int(&flags, "endLine")?,
             col: get_int(&flags, "col")?,
@@ -71,19 +82,19 @@ impl LogMessage {
     }
     pub fn comment(&self) -> Comment {
         Comment {
-            body: format!("> {}", self.message),
+            body: format!("> [!{}]\n> {}", self.level.markdown_level(), self.message),
             path: self.file.clone(),
             new_position: self.line,
         }
     }
 }
 
-pub fn save_cache(messages: Vec<LogMessage>, cache: PathBuf) -> Result<()> {
+pub fn save_cache(messages: Vec<LogMessage>, cache: &PathBuf) -> Result<()> {
     let f = std::fs::File::create(cache).context("failed to create cache file")?;
     serde_json::to_writer(f, &messages).context("failed to write message cache")
 }
 
-pub fn read_cache(cache: PathBuf) -> Result<Vec<LogMessage>> {
+pub fn read_cache(cache: &PathBuf) -> Result<Vec<LogMessage>> {
     let body = std::fs::read_to_string(cache).context("failed to read cache file")?;
     serde_json::from_str(&body).context("failed to deserialize cache")
 }
