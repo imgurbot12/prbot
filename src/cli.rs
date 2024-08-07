@@ -25,7 +25,7 @@ fn commit(pr_url: &str, user: &str, token: &str, messages: Vec<LogMessage>) -> R
         pr_url,
         token,
         ReviewRequest {
-            body: "Error Report from Gitea Actions".to_owned(),
+            body: body(&messages),
             commit_id,
             comments: messages.iter().map(|m| m.comment()).collect(),
         },
