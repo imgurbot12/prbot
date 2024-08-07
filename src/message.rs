@@ -113,7 +113,7 @@ pub fn body(messages: &Vec<LogMessage>) -> String {
     let repo = std::env::var("GITHUB_REPOSITORY").unwrap_or_default();
     let job_id = std::env::var("GITHUB_RUN_ID").unwrap_or_default();
     let url = if !server_url.is_empty() && !repo.is_empty() && !job_id.is_empty() {
-        format!(" ([*]({server_url}/{repo}/actions/runs/{job_id}))")
+        format!(" [*]({server_url}/{repo}/actions/runs/{job_id})")
     } else {
         String::new()
     };
@@ -124,7 +124,7 @@ pub fn body(messages: &Vec<LogMessage>) -> String {
 | ---------------------------------------------- | -------- |
 | <span style="color:#1e7ac8">**debug**</span>   |  {} |
 | <span style="color:#5a30b5">**notice**</span>  |  {} |
-| <span style="color:#573a08">**warning**</span> |  {} |
+| <span style="color:#fbbd08">**warning**</span> |  {} |
 | <span style="color:#c82121">**error**</span>   |  {} |
     "#,
         count(messages, LogLevel::Debug),
