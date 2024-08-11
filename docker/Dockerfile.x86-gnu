@@ -1,0 +1,17 @@
+FROM debian:bookworm-slim
+
+# install deps
+ENV DEBIAN_FRONTEND=noninteractive
+RUN \
+  apt-get update && \
+  apt-get install --assume-yes curl gcc pkg-config libssl-dev
+
+# install rust
+RUN \
+  curl -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# install gnu target
+RUN \
+  rustup target add x86_64-unknown-linux-gnu \
+  && rustup default stable-x86_64-unknown-linux-gnu

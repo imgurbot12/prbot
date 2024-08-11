@@ -1,0 +1,14 @@
+FROM docker.io/alpine:3.19
+
+# install deps
+RUN apk add --no-cache curl gcc musl-dev openssl-dev openssl-libs-static
+
+# install rust
+RUN \
+  curl -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# install musl target
+RUN \
+  rustup target add x86_64-unknown-linux-musl \
+  && rustup default stable-x86_64-unknown-linux-musl
