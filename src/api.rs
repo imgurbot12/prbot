@@ -52,6 +52,11 @@ pub fn clean_old_reviews(pr_url: &str, user: &str, token: &str) -> Result<()> {
     let body = res.body_mut();
     let reviews: Vec<serde_json::Value> = body.json().context("failed to parse review list")?;
     for review in reviews {
+        //NOTE: skip team reviews since they do not contain a username
+        // and are obviously not the service account
+        if let Some(_) = review.get("team") {
+            continue;
+        }
         let id = review
             .get("id")
             .context("failed to find review id")?
