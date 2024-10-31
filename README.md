@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup PRBot
-        uses: imgurbot12/prbot@v1
+        uses: imgurbot12/prbot@v2
         with:
           username:  ${{ secrets.prbot_username }}
           api_token: ${{ secrets.prbot_token }}
